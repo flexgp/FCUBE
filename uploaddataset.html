@@ -1,0 +1,63 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>FCUBE: add a learner</title>
+
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <h1><a href="http://flexgp.github.io/FCUBE/">FCUBE</a></h1>
+        <p></p>
+
+        <p class="view"><a href="https://github.com/flexgp/FCUBE">View the Project on GitHub <small>flexgp/FCUBE</small></a></p>
+
+
+        <ul>
+          <li><a href="https://github.com/flexgp/FCUBE/zipball/master">Download <strong>ZIP File</strong></a></li>
+          <li><a href="https://github.com/flexgp/FCUBE/tarball/master">Download <strong>TAR Ball</strong></a></li>
+          <li><a href="https://github.com/flexgp/FCUBE">View On <strong>GitHub</strong></a></li>
+        </ul>
+      </header>
+
+<section>
+
+
+<h1><a name="add-a-dataset" class="anchor" href="#add-a-dataset"><span class="octicon octicon-link"></span></a>How to add a dataset</h1>
+
+<p>If your training dataset is bigger than 1GB, we recommend to generate splits. This will reduce network transfers (and cost) and will result in better overall performance of the FCUBE platform. If your dataset is smaller than 1GB, you can skip Step 1.</p>
+<br>
+
+<h2><a name="step1-splits" class="anchor" href="#phase-1-bring-your-own-learner-until-may-31st"><span class="octicon octicon-link"></span></a>Step 1: generate splits (optional)</h2>
+
+<p>FCUBE provides functionality to generate splits that maintain the class balance of the problem. The path to the dataset and the number of splits must be specified. Example:</p>
+<pre><code>$ java -jar fcube.jar -split higgs-alfa.csv 10</code></pre>
+<p></p>
+<br>
+
+<h2><a name="step2-upload" class="anchor" href="#phase-1-bring-your-own-learner-until-may-31st"><span class="octicon octicon-link"></span></a>Step 2: upload data</h2>
+
+<p>Datasets can be directly uploaded to Amazon S3. Access your AWS account from <a href="https://aws.amazon.com">aws.amazon.com</a></p>.
+<p><img src="images/accessAWS.png" alt="ALFA"></p>
+
+<p>Amazon AWS S3 management console provides a user-friendly interface to navigate through your S3 buckets and folders. It also provides drag-and-drop functionality to upload datasets:</p>
+<p><img src="images/upload.png" alt="ALFA"></p>
+</section>
+
+      <footer>
+        <p>This project is maintained by <a href="https://github.com/flexgp">flexgp</a></p>
+        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
+      </footer>
+    </div>
+    <script src="javascripts/scale.fix.js"></script>
+    
+  </body>
+</html>

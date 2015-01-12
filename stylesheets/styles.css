@@ -7,6 +7,11 @@ body {
   font-weight:300;
 }
 
+h0 {
+  color:#222;
+  margin:0px 50px 20px;
+}
+
 h1, h2, h3, h4, h5, h6 {
   color:#222;
   margin:0 0 20px;
@@ -14,10 +19,19 @@ h1, h2, h3, h4, h5, h6 {
 
 p, ul, ol, table, pre, dl {
   margin:0 0 20px;
+  color:#222;
+}
+
+h0 {
+  line-height:4;
 }
 
 h1, h2, h3 {
   line-height:1.1;
+}
+
+h0 {
+  font-size:40px;
 }
 
 h1 {
@@ -46,7 +60,7 @@ a small {
 }
 
 .wrapper {
-  width:860px;
+  width:1000px;
   margin:0 auto;
 }
 
@@ -160,7 +174,13 @@ header ul a strong {
 }
 
 section {
-  width:500px;
+  width:650px;
+  float:right;
+  padding-bottom:50px;
+}
+
+sectionIndex {
+  width:850px;
   float:right;
   padding-bottom:50px;
 }

@@ -1,0 +1,125 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>FCUBE: add a learner</title>
+
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <h1><a href="http://flexgp.github.io/FCUBE/">FCUBE</a></h1>
+        <p></p>
+
+        <p class="view"><a href="https://github.com/flexgp/FCUBE">View the Project on GitHub <small>flexgp/FCUBE</small></a></p>
+
+
+        <ul>
+          <li><a href="https://github.com/flexgp/FCUBE/zipball/master">Download <strong>ZIP File</strong></a></li>
+          <li><a href="https://github.com/flexgp/FCUBE/tarball/master">Download <strong>TAR Ball</strong></a></li>
+          <li><a href="https://github.com/flexgp/FCUBE">View On <strong>GitHub</strong></a></li>
+        </ul>
+      </header>
+
+      <section>
+
+
+
+
+<h1><a name="instructions-for-participants" class="anchor" href="#instructions-for-participants"><span class="octicon octicon-link"></span></a>How to add a learner</h1>
+
+<p>FCUBE allows users to integrate their own stand-alone learning algorithm in the framework. Below we describe the input/output specification of FCUBE learning algorithms and the steps necessary to add new learners to FCUBE's repository.</p>
+<br>
+
+<h2><a name="phase-1-bring-your-own-learner-until-may-31st" class="anchor" href="#phase-1-bring-your-own-learner-until-may-31st"><span class="octicon octicon-link"></span></a>Step 1: learner input/output specification</h2>
+
+<p>Your learner must be compliant with FCUBE's input/output specification; we provide an example learner <a href="downloads/gpfunction.jar" target="_blank">GPFunction</a> (one of our Java learners for numerical features) together with a <a href="downloads/higgs_noheader_02.csv" target="_blank">split of the higgs dataset</a> that you can use to debug yours:</p>
+
+<h3><a name="learner-training-interface" class="anchor" href="#learner-training-interface"><span class="octicon octicon-link"></span></a>Learner Training interface</h3>
+
+<p><img src="images/learnerbbtrain.png" alt="Predict Interface"></p>
+
+<h4><a name="inputs" class="anchor" href="#inputs"><span class="octicon octicon-link"></span></a>Inputs:</h4>
+
+<ol><li>a path to a CSV file: we support csv files with and without headers. When headers are included, the first line of the file contains the name and type of the features (integer, float, or nominal). Check this dummy dataset <a href="downloads/dummy_headers.csv" target="_blank">with headers</a> and <a href="downloads/dummy_noheaders.csv" target="_blank">without headers</a> and this split of the Higgs dataset <a href="downloads/higgs_header_02.csv" target="_blank">with headers</a> and <a href="downloads/higgs_noheader_02.csv" target="_blank">without headers</a>.</li>
+<li>learning time deadline</li>
+<li>Properties File with Java syntax for your extra parameters. Check this <a href="downloads/parameters.properties" target="_blank">example</a>.</li>
+</ol>
+<h4><a name="outputs" class="anchor" href="#outputs"><span class="octicon octicon-link"></span></a>Outputs:</h4>
+
+<ol><li>a model stored in a single file on disk</li></ol>
+<p>Example with our <a href="downloads/gpfunction.jar" target="_blank">GPFunction</a> learner:</p>
+
+<pre><code>$ java -jar gpfunction.jar -train higgs_noheader_02.csv -minutes 10 -properties params.properties
+</code></pre>
+
+<h3><a name="learner-predict-interface" class="anchor" href="#learner-predict-interface"><span class="octicon octicon-link"></span></a>Learner Predict interface</h3>
+
+<p><img src="images/learnerbbpredict.png" alt="Predict Interface"></p>
+
+<h4><a name="inputs-1" class="anchor" href="#inputs-1"><span class="octicon octicon-link"></span></a>Inputs:</h4>
+
+<ol>
+<li>path to a CSV file</li>
+<li>path to where the model is stored</li>
+<li>path to where the predictions will be stored</li>
+</ol>
+
+<h4><a name="outputs-1" class="anchor" href="#outputs-1"><span class="octicon octicon-link"></span></a>Outputs:</h4>
+
+<ol><li>predictions in CSV file (one label per line)</li>
+</ol>
+<p>Example: the GPFunction learner produces several models. Let is pick the model called mostAccurate.txt and generate predictions for the same split higgs_noheader_02.csv.</p>
+
+<pre><code>$ java -jar gpfunction.jar -predict higgs_noheader_02.csv -model mostAccurate.txt -o predictions.csv
+</code></pre> 
+
+<p>The executable gpfunction.jar will generate a csv file named predictions.csv containing one label per line.</p>
+
+<h2><a name="phase-1-bring-your-own-learner-until-may-31st" class="anchor" href="#phase-1-bring-your-own-learner-until-may-31st"><span class="octicon octicon-link"></span></a>Step 2: add the learner</h2>
+
+<p>In the current release, the integration of new learners is not automated. The executables of the new learners need to be encapsulated in the Amazon EC2 image of both the FCUBE server and the FCUBE instances. To add a new learner in an Amazon EC2 image, follow these steps:</p>
+<ol>
+<li>Modify the following lines of code executed by the FCUBE instances:</li>
+	<ol>
+	<li>Add the calls to the learner in the method factorAndStartLearningInstance of BootEC2.java. As an example, we show the code to add a java learner called <em>new_java_learner</em>:</li>
+	<pre><code>if(learner.equals("gpfunction")){
+	...
+}</code></pre>
+	<p>becomes</p>
+	<pre><code>if(learner.equals("gpfunction") || learner.equals("new_java_learner")){
+	...
+}</code></pre>
+	<li>In a similar way, add the calls to the learner in the method getPredictions of EvalModelsCIM.java.</li>
+</code></pre>
+	</ol>
+<li>Compile the modified FCUBE code</li>
+<li>Launch the FCUBE instance image</li>
+<li>Copy the executable learner to the running instance and store it in <em>/home/ec2-user/learners/</em></li>
+<li>Replace the file FCUBE executable <em>/home/ec2-user/fcube.jar</em> with the new one</li>
+<li>Create a snapshot of the running image and check the assigned AMI.</li>
+<li>Modify the following lines of code executed by the FCUBE server:</li>
+	<li>Modify the attribute AMI in EC2MenuManager.java</li>
+	<pre><code>private String AMI = "new_ami";</code></pre>
+<li>Compile the modified FCUBE code and use it for deployment, retrieval and fusion of FCUBE models.</li>
+</ol>
+
+
+</section>
+
+      <footer>
+        <p>This project is maintained by <a href="https://github.com/flexgp">flexgp</a></p>
+        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
+      </footer>
+    </div>
+    <script src="javascripts/scale.fix.js"></script>
+    
+  </body>
+</html>

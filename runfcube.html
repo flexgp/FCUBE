@@ -1,0 +1,141 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Run FCUBE</title>
+
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <h1><a href="http://flexgp.github.io/FCUBE/">FCUBE</a></h1>
+        <p></p>
+
+        <p class="view"><a href="https://github.com/flexgp/FCUBE">View the Project on GitHub <small>flexgp/FCUBE</small></a></p>
+
+
+        <ul>
+          <li><a href="https://github.com/flexgp/FCUBE/zipball/master">Download <strong>ZIP File</strong></a></li>
+          <li><a href="https://github.com/flexgp/FCUBE/tarball/master">Download <strong>TAR Ball</strong></a></li>
+          <li><a href="https://github.com/flexgp/FCUBE">View On <strong>GitHub</strong></a></li>
+        </ul>
+      </header>
+
+<section>
+
+
+<h1><a name="run-fcube" class="anchor" href="#run-fcube"><span class="octicon octicon-link"></span></a>How to run FCUBE</h1>
+
+<p>We provide a web interface to exploit the most common use case of FCUBE. A preconfigured image released on Amazon EC2 contains all the code necessary to run FCUBE. To instantiate such image, the following steps are required.</p>
+<br>
+
+<p><font color="red">WARNING: DO NOT FORGET TO TERMINATE THE INSTANCES AT THE END OF THE FCUBE RUN</font></p>
+
+
+
+
+
+
+<h3><a name="step1-train" class="anchor" href="#phase-1-train"><span class="octicon octicon-link"></span></a>Step 1: Log into Amazon Web Services</h3>
+
+<p>Access your AWS account from <a href="https://aws.amazon.com">aws.amazon.com</a></p>
+<p><img align="right" src="images/accessAWS.png" alt="ALFA" Vspace="25"><br></p>
+
+
+
+
+
+<h3><a name="step1-train" class="anchor" href="#phase-1-train"><span class="octicon octicon-link"></span></a>Step 2: launch an FCUBE server</h3>
+
+<p>From the Amazon EC2 console, launch an instance of the fcube-server image. The image name is:<br>
+ <font color="red">fcube-server-10</font> and the AMI is <font color="red">ami-941e78fc</font>. <br>
+Make sure that the port 8080 is open.</p>
+<p><img align="right" src="images/launchserver.png" alt="ALFA" Vspace="25"></p>
+
+<p>From the Amazon EC2 console, check the public IP assigned to the FCUBE server:</p>
+<p><img align="right" src="images/ip.png" alt="ALFA" Vspace="25"></p>
+<br>
+
+
+
+
+
+<h3><a name="step1-train" class="anchor" href="#phase-1-train"><span class="octicon octicon-link"></span></a>Step 3: secure copy the AWS keys to the server</h3>
+
+<p>Send the file <em><font color="red">credentials.csv</font></em> to the FCUBE server.</p>
+<pre><code>$ scp -i path_to_your_keypair.pem  path_to_credentials.csv ec2-user@<em>assigned_ip</em>:~
+</code></pre>
+<p><font color="red">Note: the file credentials.csv contains an access key and a secret key and can only be downloaded from <a href="https://aws.amazon.com">aws.amazon.com</a> when the keys are first generated.</font></p>
+
+<p>Log into the instance and copy the credentials to the tomcat folder:</p>
+<pre><code>$ ssh -i path_to_your_keypair.pem ec2-user@<em>assigned_ip</em>
+[ec2-user@<em>private_ip</em> ~]$ sudo cp credentials.csv /usr/share/tomcat7/certs/ ; sudo chown tomcat /usr/share/tomcat7/certs/credentials.csv
+</code></pre>
+
+
+
+
+
+<h3><a name="step1-train" class="anchor" href="#phase-1-train"><span class="octicon octicon-link"></span></a>Step 4: access the FCUBE server's web interface</h3>
+
+<p>Access the launched image with your web browser. The url is http://<em>assigned_ip</em>:8080/fcube-aws-server/</p>
+<p>The following fields of the form need to be filled:</p>
+<ol>
+<li>Training data folder: the path to the S3 bucket and folder containing the training splits.</li>
+<li>Fusion training data: the path of the data split used for fusion training</li>
+<li>Test data: the data split used for testing</li>
+<li>Number of FCUBE workers</li>
+<li>Flavor of FCUBE workers (check the available <a href="http://aws.amazon.com/ec2/instance-types/">EC2 instance flavors</a>)</li>
+<li>Data received at each instance (0 to 1): fraction of the randomly selected split used for learning (1 stands for the whole split)</li>
+<li>Learner: select one of the available learners</li>
+<li>Learning time (in minutes)</li>
+</ol>
+
+<p>Once the form has been filled, <b>just click on "Run FCUBE"!</b></p>
+
+<p><img align="right" src="images/fcubeconfig.png" alt="ALFA" Vspace="25"></p>
+<br>
+
+
+
+
+
+<h3><a name="step1-train" class="anchor" href="#phase-1-train"><span class="octicon octicon-link"></span></a>Step 5: learning the models</h3>
+
+<p>After clicking on "Run FCUBE", a new page allows to monitor the run:</p>
+<p><img align="right" src="images/monitoring.png" alt="ALFA" Vspace="25"></p>
+<br>
+
+
+
+
+
+<h3><a name="step1-train" class="anchor" href="#phase-1-train"><span class="octicon octicon-link"></span></a>Step 6: model fusion</h3>
+
+<p>Once all the models have been retrieved, click on "Fuse Models". You will be able to monitor the model fusion process, and to download the fused model.</p>
+<p><img align="right" src="images/fusion.png" alt="ALFA" Vspace="25"></p>
+<br>
+
+<p><font color="red">WARNING: DO NOT FORGET TO TERMINATE THE INSTANCES AT THE END OF THE FCUBE RUN</font></p>
+
+</section>
+
+
+
+<footer>
+<p>This project is maintained by <a href="https://github.com/flexgp">flexgp</a></p>
+<p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
+</footer>
+
+</div>
+<script src="javascripts/scale.fix.js"></script>
+    
+</body>
+</html>

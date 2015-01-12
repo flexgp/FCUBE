@@ -1,0 +1,147 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>FCUBE: add a learner</title>
+
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <h1><a href="http://flexgp.github.io/FCUBE/">FCUBE</a></h1>
+        <p></p>
+
+        <p class="view"><a href="https://github.com/flexgp/FCUBE">View the Project on GitHub <small>flexgp/FCUBE</small></a></p>
+
+
+        <ul>
+          <li><a href="https://github.com/flexgp/FCUBE/zipball/master">Download <strong>ZIP File</strong></a></li>
+          <li><a href="https://github.com/flexgp/FCUBE/tarball/master">Download <strong>TAR Ball</strong></a></li>
+          <li><a href="https://github.com/flexgp/FCUBE">View On <strong>GitHub</strong></a></li>
+        </ul>
+      </header>
+
+      <section>
+
+<h1><a name="deploy" class="anchor" href="#deploy"><span class="octicon octicon-link"></span></a>A brief guide to the FCUBE project</h1>
+
+<p>This is a non comprehensive guide to the FCUBE project code. If you are interested in knowing more about the project or if you want to continue its development, please contact us by email at <a href="mailto:iarnaldo@mit.edu">iarnaldo@mit.edu</a> </p>
+
+
+<h2><a name="webapp" class="anchor" href="#deploy"><span class="octicon octicon-link"></span></a>FCUBE's web application</h2>
+
+<p>We provide a tomcat application hosted on the FCUBE server that allows to interact with FCUBE via a web interface. The web application wraps FCUBE's functionality, 
+and is meant to be example of what can be done to facilitate the use of the FCUBE platform. However, the current release does not exploit all the features of FCUBE, so we encourage users to build their own applications according to their own needs.</p>
+
+<p>The web application is also meant to be an example on how the FCUBE java executable needs to be used and how the project environment (folder structure) needs to be set. 
+Please check the folder <em>/usr/share/tomcat/</em> on a FCUBE server instance to check the required folder structure.
+</p>
+
+
+<h2><a name="deploy" class="anchor" href="#deploy"><span class="octicon octicon-link"></span></a>FCUBE's server and client code</h2>
+
+<p>The code of the FCUBE project is composed of:</p>
+<ol>
+<li>A single java executable with a command line interface that, on the server side, allows to:</li>
+	<ol>
+	<li>generate data splits (check instructions <a href="uploaddataset.html">here</a>)</li>
+	<li>deploy FCUBE learning algorithm on Amazon EC2</li>
+	<li>retrieve the learned models</li>
+	<li>filter and fuse the learned models</li>	
+	</ol>
+<p>The same executable is used, on the FCUBE instance side, to sample the training data and the parameters of the learners (<em>factoring</em>).</p>
+<li>The executables of the stand-alone learning algorithms integrated in FCUBE</li>
+</ol>
+
+
+<p>Below, we describe in detail the command-line interfaces of the FCUBE server, that is, the commands necessary to deploy learners, and retrieve and fuse models.
+This functionality has only been tested in Debian environments and relies on the <a href="http://aws.amazon.com/cli/">AWS CLI tools</a>, that need to be installed and configured with
+your own access and secret keys.</p>
+
+<h3><a name="deploy" class="anchor" href="#deploy"><span class="octicon octicon-link"></span></a>Step 0: learning strategy</h3>
+
+<p>The learning strategy is specified in a file sent to all the FCUBE instances deployed within a FCUBE run.</p>
+
+<p>There are two built-in parameters for data management:</p>
+<ol>
+<li>data_sample_rate: percentage of data sampled by each node</li>
+<li>variable_sample_rate: percentage of variables sampled by each node</li>
+</ol>
+
+<p>This file can also be used to specify ranges of values for learner-specific parameters such as learning rate, crossover rate etc. For detailed information on how to specify parameter ranges please <a href="downloads/documentation.pdf" target="_blank">check this documentation</a>. We show and comment an example for our <a href="downloads/gpfunction.jar" target="_blank">GPFunction learner</a> (a learner inspired on Evolutionary Computation):</p>
+
+<pre><code>
+fixed data fcube/higgs/train
+fixed threads 2
+
+data_sample_rate float discreteSet default ( 1 ) { 0.1 ; 0.2 }
+variable_sample_rate float discreteSet default ( 1 ) { 0.25 ; 0.75 ; 1 }
+false_negative_weight float range default ( 0.5 ) [ 0.4 : 0.05 : 0.6 ]
+xover_op string discreteSet default ( SPUCrossover ) { SPUCrossover ; KozaCrossover }
+pop_size int discreteSet default ( 1000 ) { 1000 ; 1500 ; 2000 }
+
+factoredParams {data_sample_rate, variable_sample_rate, xover_op, pop_size}
+</code></pre>
+
+<p>The path to the data and the number of threads are declared as fixed parameters. The built-in parameters for data management (data_sample_rate and variable_sample_rate) as well as the crossover operator and population size are all assigned a discrete set of choices. The learner-specific parameter indicating false negative weight is assigned a range of possible values. Finally, the instruction in the last line indicates the parameters that will be factored (stochastically selecting a value from the possible choices). Only the false negative weight will be set to its default value.</p>
+<br>
+
+<h3><a name="deploy" class="anchor" href="#deploy"><span class="octicon octicon-link"></span></a>Step 1: Deploy a learner of the repository</h3>
+
+<p>Command:</p>
+<pre><code>$ java -jar fcube.jar -deploy gpfunction -n 40 -minutes 60 -key_name nachokey -options ruletree_factoring.options</code></pre>
+<p>where:</p>
+<ol>
+<li>-deploy: specify learner name</li>
+<li>-n: number of nodes</li>
+<li>-key_name: name of EC2/OpenStack keypair</li>
+<li>-options: path to the parameter options file</li>
+</ol>
+<br>
+
+<h3><a name="retrieve" class="anchor" href="#retrieve"><span class="octicon octicon-link"></span></a>Step 2: retrieve models</h3>
+
+<p>Command:</p>
+<pre><code>$ java -jar fcube.jar -retrieve mostAccurate.txt -keypairPath certs/nachokey.pem -learners gpfunction
+</code></pre>
+<p>where:</p>
+<ol>
+<li>-retrieve: model file</li>
+<li>-keypairPath: path to EC2 keypair</li>
+<li>-learners: name of the learner(s) deployed in the run</li>
+<li>-options: path to the parameter options file</li>
+</ol>
+<br>
+
+<h3><a name="filter-fuse" class="anchor" href="#filter-fuse"><span class="octicon octicon-link"></span></a>Step 3: filter and fuse models</h3>
+
+<p>Command:</p>
+<pre><code>$ java -jar fcube.jar -filter-fuse higgs-alfa_9.csv higgs-alfa_10.csv -model mostAccurate.txt -fnweight 0.47 -learners gpfunction
+</code></pre>
+<p>where:</p>
+<ol>
+<li>-filter-fuse: path to fusion training set and path to test set</li>
+<li>-model: model file</li>
+<li>-fnweight: false negative error weight</li>
+<li>-learners: name of the learner(s) deployed in the run</li>
+</ol>
+
+
+</section>
+
+      <footer>
+        <p>This project is maintained by <a href="https://github.com/flexgp">flexgp</a></p>
+        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
+      </footer>
+    </div>
+    <script src="javascripts/scale.fix.js"></script>
+    
+  </body>
+</html>
