@@ -1,0 +1,12 @@
+learner data fcube/train
+
+learner external_threads 4
+learner false_negative_weight 0.47
+
+factoredParams {data_sample_rate, variable_sample_rate}
+
+parameter_options start
+
+data_sample_rate float discreteSet default ( 1 ) { 0.1 ; 0.1 }
+
+variable_sample_rate float discreteSet default ( 1 ) { 1 ; 1 }
