@@ -96,13 +96,14 @@ factoredParams {data_sample_rate, variable_sample_rate, xover_op, pop_size}
 <h3><a name="deploy" class="anchor" href="#deploy"><span class="octicon octicon-link"></span></a>Step 1: Deploy a learner of the repository</h3>
 
 <p>Command:</p>
-<pre><code>$ java -jar fcube.jar -deploy gpfunction -n 40 -minutes 60 -key_name nachokey -options ruletree_factoring.options</code></pre>
+<pre><code>$ java -jar fcube.jar -deploy gpfunction -n 40 -minutes 60 -key_name nachokey -options ruletree_factoring.options -flavor ec2_instance_type</code></pre>
 <p>where:</p>
 <ol>
 <li>-deploy: specify learner name</li>
 <li>-n: number of nodes</li>
 <li>-key_name: name of EC2/OpenStack keypair</li>
 <li>-options: path to the parameter options file</li>
+<li>-flavor: flavor (instance type) of the FCUBE workers</li>
 </ol>
 <br>
 
